@@ -291,10 +291,14 @@ void Thread1(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
+	uint8_t TxData[20] = "Hello From Thread1\r\n";
+	
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		HAL_UART_Transmit(&huart2,TxData,20,1);
+    osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }
