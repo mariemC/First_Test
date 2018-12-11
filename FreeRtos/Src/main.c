@@ -297,9 +297,12 @@ void Thread1(void const * argument)
   for(;;)
   {
 		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-		HAL_UART_Transmit(&huart2,TxData,20,1);
+		xSemaphoreTake(UartMutexHandle, portMAX_DELAY);
+		HAL_UART_Transmit(&huart2,TxData,20,5);
+		xSemaphoreGive(UartMutexHandle);
     osDelay(1000);
-  }
+	}
+  
   /* USER CODE END 5 */ 
 }
 
@@ -307,10 +310,17 @@ void Thread1(void const * argument)
 void Thread2(void const * argument)
 {
   /* USER CODE BEGIN Thread2 */
+	uint8_t TxData[20] = "Hello From Thread2\r\n";
   /* Infinite loop */
   for(;;)
-  {
-    osDelay(1);
+  { 
+		if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_RESET)
+		{ 
+			xSemaphoreTake(UartMutexHandle, portMAX_DELAY);
+			HAL_UART_Transmit(&huart2,TxData,20,5);
+			xSemaphoreGive(UartMutexHandle);
+     osDelay(1000);
+		}
   }
   /* USER CODE END Thread2 */
 }
